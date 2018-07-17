@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+  brandName = 'Example Nav Bar';
+  navLinks = ['Dashboard', 'Home', 'Settings'];
 }
