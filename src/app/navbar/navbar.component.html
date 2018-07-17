@@ -1,0 +1,23 @@
+<mat-toolbar class="mat-elevation-z6" color="primary">
+  <mat-toolbar-row *ngIf="!isSmall else small">
+    <div class="button-row">
+      <button mat-button *ngIf="brand">{{brand}}</button>
+      <button mat-button *ngFor="let link of navLinks">{{link}}</button>
+    </div>
+  </mat-toolbar-row>
+  <ng-template #small>
+    <mat-toolbar-row>
+      <span class="title-center">{{brand}}</span>
+      <button mat-icon-button class="button-right" (click)="toggleExpend()">
+        <mat-icon>view_headline</mat-icon>
+      </button> 
+    </mat-toolbar-row>
+    <ng-template [ngIf]="isExpended">
+      <mat-toolbar-row *ngFor="let link of navLinks" style="padding:0;" [@showNavbar]>
+        <button mat-button class="button-center">
+          {{link}}
+        </button>
+      </mat-toolbar-row>
+    </ng-template>
+  </ng-template>
+</mat-toolbar>

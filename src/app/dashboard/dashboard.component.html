@@ -1,0 +1,16 @@
+<div class="ng-star-inserted dashboard-header">
+  Learn Languages
+</div>
+
+<div class="container-list">
+  <mat-list class="list-item" align="center">
+    <mat-list-item *ngFor="let item of dashboardItems">
+      <img matListAvatar [src]="item.src">
+      <h3 matLine class="color-white" style="max-width: 400px"> {{item.header}} </h3>
+      <p matLine style="max-width: 400px">
+        <span class="color-white"> {{item.description}} </span>
+      </p>
+    </mat-list-item>
+  </mat-list>
+</div>
+<div class="fotter"></div>

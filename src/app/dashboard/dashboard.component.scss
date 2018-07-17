@@ -1,0 +1,51 @@
+$background: #48B484;
+$narrow-screen: "(max-width: 400px)";
+$wide-screen: "(min-width: 1025px)"; 
+
+@function get-vw($target) { 
+  @return ($target/12px) * 1vw;
+}
+
+.dashboard-header {
+  padding-top: 50px;
+  width: 100%;
+  font-weight: 700;
+  color: white;
+  font-size: get-vw(72px);
+  @media #{$narrow-screen} {
+    font-size: 24px;
+  }
+  @media #{$wide-screen} {
+    font-size: 65px;
+  }
+  text-align: center;
+  background: $background;
+}
+
+.color-white {
+  color: white;
+}
+
+.container-list {
+  text-align: center;
+  color: white;
+  background: $background;
+}
+
+.list-item {
+  text-align: center;
+  margin-left: 10%;
+  padding-left: 20%;
+  width: 400px;
+}
+
+.fotter {
+    background: grey;
+    height: 100px;
+    width: 100%;
+}
+
+.mat-list-text {
+    width: 400px;
+    max-width: 400px;
+}
