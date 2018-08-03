@@ -39,7 +39,7 @@ export class DragGridComponent implements OnInit {
     this.dropCard = card;
   }
 
-  onMouseEnterGrid(card) {
+  onMouseMoveGrid(card) {
     this.hoverCard = card;
 
     if (!this.dropCard) {
