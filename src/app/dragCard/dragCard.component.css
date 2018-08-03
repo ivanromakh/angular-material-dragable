@@ -1,0 +1,11 @@
+mat-card {
+  margin: 15px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+mat-form-field {
+  margin: 10px;
+}
