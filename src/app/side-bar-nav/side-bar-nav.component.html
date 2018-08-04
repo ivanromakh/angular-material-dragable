@@ -8,22 +8,24 @@
     [opened]="!(isHandset | async)!.matches">
     <mat-toolbar color="primary">Menu</mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
+      <a mat-list-item href="#">Dashboard</a>
+      <a mat-list-item href="#">Finances</a>
+      <a mat-list-item href="#">Blases</a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="(isHandset | async)!.matches">
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span>Application Title</span>
+    <mat-toolbar style="color: white; background: #3f51b5">
+      <mat-toolbar-row style="color: white; background: #3f51b5">
+        <button
+          type="button"
+          aria-label="Toggle sidenav"
+          mat-icon-button
+          (click)="drawer.toggle()"
+          *ngIf="(isHandset | async)!.matches">
+          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+        </button>
+        <span>Application Title</span>
+      </mat-toolbar-row>
     </mat-toolbar>
     <app-dashboard></app-dashboard>
   </mat-sidenav-content>

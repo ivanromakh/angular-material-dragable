@@ -1,8 +1,11 @@
-<p>
-    <mat-grid-list cols="4" rowHeight="200px">
-      <mat-grid-tile *ngFor="let card of cards" (mousemove)="onMouseMoveGrid(card)" [colspan]="card.cols" [rowspan]="card.rows">
-        <app-drag-card [card]="card" (drop)="onTileDrop($event)"></app-drag-card>
-      </mat-grid-tile>
-    </mat-grid-list>
-  </p>
-  
+<mat-grid-list cols="4" rowHeight="200px">
+  <mat-grid-tile
+    app-drag-card
+    *ngFor="let card of cards"
+    [@dragElement]="{value: card.state, params: card.params, duration: dragDuration}"
+    (mousemove)="onMouseMoveGrid(card, $event)"
+    [colspan]="card.cols"
+    [rowspan]="card.rows">
+    <app-drag-card [card]="card" (drop)="onTileDrop($event)"></app-drag-card>
+  </mat-grid-tile>
+</mat-grid-list>
