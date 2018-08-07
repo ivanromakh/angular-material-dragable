@@ -1,5 +1,8 @@
 mat-card {
-  margin: 15px;
+  margin: 10px;
+}
+mat-card {
+  width: 80%;
 }
 
 .text-right {

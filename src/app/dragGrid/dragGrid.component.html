@@ -1,9 +1,10 @@
-<mat-grid-list cols="4" rowHeight="200px">
+<mat-grid-list style="overflow:hidden" cols="{{numberOfColumns}}" rowHeight="{{rowHeight}}px">
   <mat-grid-tile
-    app-drag-card
     *ngFor="let card of cards"
-    [@dragElement]="{value: card.state, params: card.params, duration: dragDuration}"
+    [@rotation]="{value: card.rotate, params: {rotate: card.rotate}}"
+    [@dragElement]="{value: card.state, params: card.params}"
     (mousemove)="onMouseMoveGrid(card, $event)"
+    (mousedown)="onMouseDownTile(card)"
     [colspan]="card.cols"
     [rowspan]="card.rows">
     <app-drag-card [card]="card" (drop)="onTileDrop($event)"></app-drag-card>

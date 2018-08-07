@@ -5,26 +5,27 @@ import {FormsModule} from '@angular/forms';
 
 import {LayoutModule} from '@angular/cdk/layout';
 
-import {MatButtonModule, MatToolbarModule, MatExpansionModule, MatCardModule, MatMenuModule} from '@angular/material';
+import {MatButtonModule, MatToolbarModule, MatExpansionModule, MatCardModule, MatMenuModule, MatTooltipModule} from '@angular/material';
+import {MatTabsModule} from '@angular/material/tabs';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatTableModule} from '@angular/material/table';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import {AppComponent} from './app.component';
 import {SideBarNavComponent} from './side-bar-nav/side-bar-nav.component';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {DashboardComponent} from './dashboard/dashboard.component';
-import { DragCardComponent } from './dragCard/dragCard.component';
-import { DragGridComponent } from './dragGrid/dragGrid.component';
+
+import {DragGridModule} from './dragGrid/dragGrid.module';
 
 @NgModule({
    declarations: [
       AppComponent,
       SideBarNavComponent,
       DashboardComponent,
-      DragCardComponent,
-      DragGridComponent
     ],
    imports: [
       BrowserModule,
@@ -40,7 +41,12 @@ import { DragGridComponent } from './dragGrid/dragGrid.component';
       MatCardModule,
       MatMenuModule,
       MatInputModule,
-      FormsModule
+      MatTableModule,
+      MatTooltipModule,
+      MatTabsModule,
+      MatProgressSpinnerModule,
+      FormsModule,
+      DragGridModule
    ],
    providers: [],
    bootstrap: [
