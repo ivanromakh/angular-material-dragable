@@ -2,11 +2,12 @@
   <mat-grid-tile
     *ngFor="let card of cards"
     [@rotation]="{value: card.rotate, params: {rotate: card.rotate}}"
-    [@dragElement]="{value: card.state, params: card.params}"
+    [@dragElement]="{value: card.state, params: { x: card.params.x, y: card.params.y, left: card.params.left, top: card.params.top, duration: dragDuration}}"
     (mousemove)="onMouseMoveGrid(card, $event)"
     (mousedown)="onMouseDownTile(card)"
     [colspan]="card.cols"
     [rowspan]="card.rows">
-    <app-drag-card [card]="card" (drop)="onTileDrop($event)"></app-drag-card>
+    {{card.rowNumber}}
+    <app-drag-card [card]="card" [changed]="card.toggleDragged" (sizeChanged)="updateRowNumbers()" (drop)="onTileDrop($event)"></app-drag-card>
   </mat-grid-tile>
 </mat-grid-list>

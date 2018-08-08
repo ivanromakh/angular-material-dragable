@@ -6,12 +6,12 @@
       <div fxLayout="row">
         <div fxLayout="column" (click)="$event.stopPropagation();">
           <mat-form-field>
-            <input [(ngModel)]="card.rows" type="number" matInput placeholder="Grid rows">
+            <input [(ngModel)]="card.rows" type="number" matInput (change)="updateRows()" placeholder="Grid rows">
           </mat-form-field>
         </div>
         <div fxLayout="column" (click)="$event.stopPropagation();">
           <mat-form-field>
-            <input [(ngModel)]="card.cols" type="number" matInput placeholder="Grid rows">
+            <input [(ngModel)]="card.cols" type="number" matInput (change)="updateRows()" placeholder="Grid rows">
           </mat-form-field>
         </div>
       </div>
@@ -44,12 +44,12 @@
           <div fxLayout="row">
             <div fxLayout="column" (click)="$event.stopPropagation();">
               <mat-form-field>
-                <input [(ngModel)]="card.rows" type="number" matInput placeholder="Grid rows">
+                <input [(ngModel)]="card.rows" type="number" matInput  (change)="updateRows()" placeholder="Grid rows">
               </mat-form-field>
             </div>
             <div fxLayout="column" (click)="$event.stopPropagation();">
               <mat-form-field>
-                <input [(ngModel)]="card.cols" type="number" matInput placeholder="Grid rows">
+                <input [(ngModel)]="card.cols" type="number" matInput  (change)="updateRows()" placeholder="Grid rows">
               </mat-form-field>
             </div>
           </div>
