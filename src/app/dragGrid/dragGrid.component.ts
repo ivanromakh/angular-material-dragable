@@ -188,41 +188,51 @@ export class DragGridComponent implements OnInit {
       this.setXPosition(card, target.params.x);
     } else {
       if (card.params.width < target.params.width) {
-        this.setXPosition(card, target.params.x + target.params.width / 2);
+        this.setXPosition(card, target.params.x + target.params.width - card.params.width);
       } else {
-        this.setXPosition(card, target.params.x - card.params.width / 2);
+        this.setXPosition(card, target.params.x - (card.params.width - target.params.width));
       }
     }
   }
 
+  moveAsideOneTile(cards, card1, cardIndex, card2, dropCardIndex) {
+    let allColsInRow = 0;
+    let tempCardColNum = 0;
+
+    for (let i = 0; i < cards.length; i++) {
+      const loopCard = cards[i];
+      if (loopCard.rowNumber === card1.rowNumber) {
+        if (i < cardIndex) { tempCardColNum += loopCard.cols; }
+        allColsInRow += loopCard.cols;
+      }
+    }
+
+    if (card2.cols > card1.cols) {
+      const difference = card2.cols - card1.cols;
+      if (allColsInRow + difference > this.numberOfColumns ) {
+        card1.overflowShiftX = difference;
+      }
+    }
+    if (tempCardColNum > this.numberOfColumns - card2.cols) {
+      this.setXPosition(card1, card2.params.x + card2.params.width);
+      this.setXPosition(card2, card2.params.x);
+      card2.overflowX = true;
+      return true;
+    }
+    return false;
+  }
+
   moveAsideDifferentWidth(card, dropCard) {
     if (card.rowNumber !== dropCard.rowNumber) {
-      let tempCardColNum = 0;
-      let tempDropCardColNum = 0;
       const cardIndex = this.cards.indexOf(card);
       const dropCardIndex = this.cards.indexOf(dropCard);
 
-      for (let i = 0; i < this.cards.length; i++) {
-        const loopCard = this.cards[i];
-        if (loopCard.rowNumber === card.rowNumber && i < cardIndex) {
-          tempCardColNum += loopCard.cols;
+      const isMoved = this.moveAsideOneTile(this.cards, card, cardIndex, dropCard, dropCardIndex);
+      if (!isMoved) {
+        const isMoved2 = this.moveAsideOneTile(this.cards, dropCard, dropCardIndex, card, cardIndex);
+        if (!isMoved2) {
+          this.exchangeXPosition(card, dropCard);
         }
-        if (loopCard.rowNumber === dropCard.rowNumber && i < dropCardIndex) {
-          tempDropCardColNum += loopCard.cols;
-        }
-      }
-      console.log(tempCardColNum);
-
-      if (tempCardColNum > this.numberOfColumns - dropCard.cols) {
-        this.setXPosition(card, dropCard.params.x + dropCard.params.width);
-        this.setXPosition(dropCard, dropCard.params.x);
-        dropCard.overflowX = true;
-      } else if (tempDropCardColNum > this.numberOfColumns - card.cols) {
-        this.setXPosition(dropCard, card.params.x + card.params.width);
-        this.setXPosition(card, card.params.x);
-        card.overflowX = true;
-      } else {
-        this.exchangeXPosition(card, dropCard);
       }
     } else {
       this.moveTileAside(dropCard, card);
@@ -231,8 +241,6 @@ export class DragGridComponent implements OnInit {
   }
 
   moveTilesAside(card, dropCard) {
-    delete card.params.left;
-    delete dropCard.params.left;
     if (card.params.width !== dropCard.params.width) {
       this.moveAsideDifferentWidth(card, dropCard);
     } else {
@@ -274,7 +282,7 @@ export class DragGridComponent implements OnInit {
   }
 
   setLeftMoveWithDifferentWidth(card, card1, card2) {
-    this.setXPosition(card, card.params.x +  card1.params.width - card2.params.width);
+    this.setXPosition(card, card.params.x + card1.params.width - card2.params.width);
     this.setYPosition(card, card.params.y);
     card.isMoved = true;
   }
@@ -296,10 +304,33 @@ export class DragGridComponent implements OnInit {
     }
   }
 
-  moveCardRow(movedCard, card, dropCard, cardNum, cardIndex) {
+  moveCardRow(movedCard, card, dropCard, cardNum, cardIndex, rowCols, shiftCols) {
     if (cardNum > cardIndex) {
-      movedCard.state = !movedCard.state;
-      this.setLeftMoveWithDifferentWidth(movedCard, dropCard, card);
+      if (rowCols + shiftCols > this.numberOfColumns) {
+        movedCard.state = !movedCard.state;
+        this.setXPosition(movedCard, dropCard.params.x);
+        this.setYPosition(movedCard, dropCard.params.y);
+        movedCard.isMoved = true;
+      } else {
+        movedCard.state = !movedCard.state;
+        this.setLeftMoveWithDifferentWidth(movedCard, dropCard, card);
+      }
+    }
+  }
+
+  moveOtherTilesRow(cards, card1, card2, card1Index, card2Index) {
+    let tempRowCols = 0;
+
+    for (let cardNum = 0; cardNum < cards.length; cardNum++) {
+      const loopCard = cards[cardNum];
+      if (loopCard.rowNumber === card1.rowNumber) {
+        tempRowCols += loopCard.cols;
+        if (!card1.overflowX) {
+          this.moveCardRow(loopCard, card1, card2, cardNum, card1Index, tempRowCols, card1.overflowShiftX);
+        } else {
+          this.moveCardRow(loopCard, card2, card1, cardNum, card2Index, tempRowCols, card1.overflowShiftX);
+        }
+      }
     }
   }
 
@@ -308,25 +339,8 @@ export class DragGridComponent implements OnInit {
       const min = Math.min(cardIndex, dropCardIndex);
       const max = Math.max(cardIndex, dropCardIndex);
 
-      for (let cardNum = min + 1; cardNum < cards.length; cardNum++) {
-        if (cardNum === max) { continue; }
-        const movedCard = cards[cardNum];
-        if (movedCard.rowNumber === card.rowNumber) {
-          if (!card.overflowX) {
-            this.moveCardRow(movedCard, card, dropCard, cardNum, cardIndex);
-          } else {
-            // not very good
-            this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
-          }
-        } else if (movedCard.rowNumber === dropCard.rowNumber) {
-          if (!dropCard.overflowX) {
-            this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
-          } else {
-            // not very good
-            this.moveCardRow(movedCard, card, dropCard, cardNum, dropCardIndex);
-          }
-        }
-      }
+      this.moveOtherTilesRow(cards, card, dropCard, cardIndex, dropCardIndex);
+      this.moveOtherTilesRow(cards, dropCard, card, dropCardIndex, cardIndex);
     }
   }
 
@@ -347,7 +361,9 @@ export class DragGridComponent implements OnInit {
     this.moveTilesUpDown(card, dropCard);
 
     card.overflowX = false;
+    card.overflowShiftX = false;
     dropCard.overflowX = false;
+    dropCard.overflowShiftX = false;
   }
 
   /* DRAG AND DROP STUFF */
@@ -404,6 +420,7 @@ export class DragGridComponent implements OnInit {
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
       tempColNum += card.cols;
+      card.colNumber = tempColNum;
       if (tempColNum > this.numberOfColumns) {
         tempRowNum++;
         tempColNum = card.cols;
