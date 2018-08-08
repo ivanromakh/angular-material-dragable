@@ -168,6 +168,11 @@ export class DragGridComponent implements OnInit {
   setXPosition(card, value) { card.params.left = value + 'px'; }
   setYPosition(card, value) { card.params.top = value + 'px'; }
 
+  setAutoPositions(card) {
+    card.params.left = 'auto';
+    card.params.top = 'auto';
+  }
+
   exchangeXPosition(card1, card2) {
     this.setXPosition(card1, card2.params.x);
     this.setXPosition(card2, card1.params.x);
@@ -192,19 +197,30 @@ export class DragGridComponent implements OnInit {
 
   moveAsideDifferentWidth(card, dropCard) {
     if (card.rowNumber !== dropCard.rowNumber) {
-      let tempColNum = 0;
+      let tempCardColNum = 0;
+      let tempDropCardColNum = 0;
       const cardIndex = this.cards.indexOf(card);
+      const dropCardIndex = this.cards.indexOf(dropCard);
 
       for (let i = 0; i < this.cards.length; i++) {
         const loopCard = this.cards[i];
-        if (i === cardIndex) { break; }
-        if (loopCard.rowNumber === card.rowNumber) {
-          tempColNum += loopCard.cols;
+        if (loopCard.rowNumber === card.rowNumber && i < cardIndex) {
+          tempCardColNum += loopCard.cols;
+        }
+        if (loopCard.rowNumber === dropCard.rowNumber && i < dropCardIndex) {
+          tempDropCardColNum += loopCard.cols;
         }
       }
+      console.log(tempCardColNum);
 
-      if (tempColNum > this.numberOfColumns - dropCard.cols) {
-        return;
+      if (tempCardColNum > this.numberOfColumns - dropCard.cols) {
+        this.setXPosition(card, dropCard.params.x + dropCard.params.width);
+        this.setXPosition(dropCard, dropCard.params.x);
+        dropCard.overflowX = true;
+      } else if (tempDropCardColNum > this.numberOfColumns - card.cols) {
+        this.setXPosition(dropCard, card.params.x + card.params.width);
+        this.setXPosition(card, card.params.x);
+        card.overflowX = true;
       } else {
         this.exchangeXPosition(card, dropCard);
       }
@@ -225,6 +241,10 @@ export class DragGridComponent implements OnInit {
   }
 
   moveTileUpDown(card, target) {
+    if (card.notMovingUpDown === true) {
+      card.notMovingUpDown = false;
+      return;
+    }
     if (target.params.y < card.params.y) {
       this.setYPosition(card, target.params.y);
     } else {
@@ -241,7 +261,15 @@ export class DragGridComponent implements OnInit {
       this.moveTileUpDown(card, dropCard);
       this.moveTileUpDown(dropCard, card);
     } else {
-      this.exchangeYPosition(card, dropCard);
+      if (card.overflowX) {
+        this.setYPosition(dropCard, card.params.y);
+        this.setYPosition(card, card.params.y);
+      } else if (dropCard.overflowX) {
+        this.setYPosition(card, dropCard.params.y);
+        this.setYPosition(dropCard, dropCard.params.y);
+      } else if (!card.overflowX && !dropCard.overflowX) {
+        this.exchangeYPosition(card, dropCard);
+      }
     }
   }
 
@@ -275,10 +303,6 @@ export class DragGridComponent implements OnInit {
     }
   }
 
-  checkSpace() {
-    console.log('check space');
-  }
-
   moveOtherTilesInDifferentRows(card, dropCard, cards, cardIndex, dropCardIndex) {
     if (card.params.width !== dropCard.params.width) {
       const min = Math.min(cardIndex, dropCardIndex);
@@ -288,9 +312,19 @@ export class DragGridComponent implements OnInit {
         if (cardNum === max) { continue; }
         const movedCard = cards[cardNum];
         if (movedCard.rowNumber === card.rowNumber) {
-          this.moveCardRow(movedCard, card, dropCard, cardNum, cardIndex);
+          if (!card.overflowX) {
+            this.moveCardRow(movedCard, card, dropCard, cardNum, cardIndex);
+          } else {
+            // not very good
+            this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
+          }
         } else if (movedCard.rowNumber === dropCard.rowNumber) {
-          this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
+          if (!dropCard.overflowX) {
+            this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
+          } else {
+            // not very good
+            this.moveCardRow(movedCard, card, dropCard, cardNum, dropCardIndex);
+          }
         }
       }
     }
@@ -308,9 +342,12 @@ export class DragGridComponent implements OnInit {
   }
 
   movingTiles(card, dropCard, cards) {
-    this.moveOtherTiles(card, dropCard, cards);
     this.moveTilesAside(card, dropCard);
+    this.moveOtherTiles(card, dropCard, cards);
     this.moveTilesUpDown(card, dropCard);
+
+    card.overflowX = false;
+    dropCard.overflowX = false;
   }
 
   /* DRAG AND DROP STUFF */
