@@ -165,21 +165,49 @@ export class DragGridComponent implements OnInit {
   }
 
   /* MOVING TILES */
+  setXPosition(card, value) { card.params.left = value + 'px'; }
+  setYPosition(card, value) { card.params.top = value + 'px'; }
+
+  exchangeXPosition(card1, card2) {
+    this.setXPosition(card1, card2.params.x);
+    this.setXPosition(card2, card1.params.x);
+  }
+
+  exchangeYPosition(card1, card2) {
+    this.setYPosition(card1, card2.params.y);
+    this.setYPosition(card2, card1.params.y);
+  }
+
   moveTileAside(card, target) {
     if (target.params.x < card.params.x) {
-      card.params.left = target.params.x;
+      this.setXPosition(card, target.params.x);
     } else {
       if (card.params.width < target.params.width) {
-        card.params.left = target.params.x + target.params.width / 2;
-      } else { card.params.left = target.params.x - card.params.width / 2; }
+        this.setXPosition(card, target.params.x + target.params.width / 2);
+      } else {
+        this.setXPosition(card, target.params.x - card.params.width / 2);
+      }
     }
-    card.params.left += 'px';
   }
 
   moveAsideDifferentWidth(card, dropCard) {
     if (card.rowNumber !== dropCard.rowNumber) {
-      card.params.left = dropCard.params.x + 'px';
-      dropCard.params.left = card.params.x + 'px';
+      let tempColNum = 0;
+      const cardIndex = this.cards.indexOf(card);
+
+      for (let i = 0; i < this.cards.length; i++) {
+        const loopCard = this.cards[i];
+        if (i === cardIndex) { break; }
+        if (loopCard.rowNumber === card.rowNumber) {
+          tempColNum += loopCard.cols;
+        }
+      }
+
+      if (tempColNum > this.numberOfColumns - dropCard.cols) {
+        return;
+      } else {
+        this.exchangeXPosition(card, dropCard);
+      }
     } else {
       this.moveTileAside(dropCard, card);
       this.moveTileAside(card, dropCard);
@@ -192,20 +220,20 @@ export class DragGridComponent implements OnInit {
     if (card.params.width !== dropCard.params.width) {
       this.moveAsideDifferentWidth(card, dropCard);
     } else {
-      card.params.left = dropCard.params.x + 'px';
-      dropCard.params.left = card.params.x + 'px';
+      this.exchangeXPosition(card, dropCard);
     }
   }
 
   moveTileUpDown(card, target) {
     if (target.params.y < card.params.y) {
-      card.params.top = target.params.y;
+      this.setYPosition(card, target.params.y);
     } else {
       if (card.params.height < target.params.height) {
-        card.params.top = target.params.y + target.params.height / 2;
-      } else { card.params.top = target.params.y - card.params.height / 2; }
+        this.setYPosition(card, target.params.y + target.params.height / 2);
+      } else {
+        this.setYPosition(card, target.params.y - card.params.height / 2);
+      }
     }
-    card.params.top += 'px';
   }
 
   moveTilesUpDown(card, dropCard) {
@@ -213,28 +241,42 @@ export class DragGridComponent implements OnInit {
       this.moveTileUpDown(card, dropCard);
       this.moveTileUpDown(dropCard, card);
     } else {
-      card.params.top = dropCard.params.y + 'px';
-      dropCard.params.top = card.params.y + 'px';
+      this.exchangeYPosition(card, dropCard);
     }
+  }
+
+  setLeftMoveWithDifferentWidth(card, card1, card2) {
+    this.setXPosition(card, card.params.x +  card1.params.width - card2.params.width);
+    this.setYPosition(card, card.params.y);
+    card.isMoved = true;
   }
 
   moveOtherTilesInOneRow(card, dropCard, cards, cardIndex, dropCardIndex) {
     if (Math.abs(cardIndex - dropCardIndex) > 1) {
       if (card.params.width !== dropCard.params.width) {
-        console.log('move others tiles in one row with different width');
         const min = Math.min(cardIndex, dropCardIndex);
         const max = Math.max(cardIndex, dropCardIndex);
         for (let i = min + 1; i < max; i++) {
           cards[i].state = !cards[i].state;
           if (cardIndex > dropCardIndex) {
-            cards[i].params.left = cards[i].params.x +  card.params.width - dropCard.params.width + 'px';
+            this.setLeftMoveWithDifferentWidth(cards[i], card, dropCard);
           } else {
-            cards[i].params.left = cards[i].params.x + dropCard.params.width - card.params.width + 'px';
+            this.setLeftMoveWithDifferentWidth(cards[i], dropCard, card);
           }
-          cards[i].isMoved = true;
         }
       }
     }
+  }
+
+  moveCardRow(movedCard, card, dropCard, cardNum, cardIndex) {
+    if (cardNum > cardIndex) {
+      movedCard.state = !movedCard.state;
+      this.setLeftMoveWithDifferentWidth(movedCard, dropCard, card);
+    }
+  }
+
+  checkSpace() {
+    console.log('check space');
   }
 
   moveOtherTilesInDifferentRows(card, dropCard, cards, cardIndex, dropCardIndex) {
@@ -246,19 +288,9 @@ export class DragGridComponent implements OnInit {
         if (cardNum === max) { continue; }
         const movedCard = cards[cardNum];
         if (movedCard.rowNumber === card.rowNumber) {
-          if (cardNum > cardIndex) {
-            movedCard.state = !movedCard.state;
-            movedCard.params.left = movedCard.params.x + dropCard.params.width -  card.params.width + 'px';
-            movedCard.params.top =  movedCard.params.y + 'px';
-            movedCard.isMoved = true;
-          }
+          this.moveCardRow(movedCard, card, dropCard, cardNum, cardIndex);
         } else if (movedCard.rowNumber === dropCard.rowNumber) {
-          if (cardNum > dropCardIndex) {
-            movedCard.state = !movedCard.state;
-            movedCard.params.left = movedCard.params.x + card.params.width - dropCard.params.width + 'px';
-            movedCard.params.top =  movedCard.params.y + 'px';
-            movedCard.isMoved = true;
-          }
+          this.moveCardRow(movedCard, dropCard, card, cardNum, dropCardIndex);
         }
       }
     }
@@ -291,6 +323,7 @@ export class DragGridComponent implements OnInit {
     cards.splice(dropIndex, 1, card);
     card.toggleDragged = !card.toggleDragged;
     dropCard.toggleDragged = !dropCard.toggleDragged;
+
     for (let i = 0; i < cards.length; i++) {
       if (cards[i].isMoved) {
         cards[i].toggleDragged = !cards[i].toggleDragged;
