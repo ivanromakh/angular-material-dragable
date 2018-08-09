@@ -97,6 +97,39 @@ export class DragGridComponent implements OnInit {
       rowNumber: 0,
       toggleDragged: false,
     }, {
+      title: 'Text 2',
+      rotate: 0,
+      state: 'stand',
+      content: {type: 'text'},
+      data: {text: 'users count: 2'},
+      params: {x: 0, y: 0, width: 0, height: 0, left: 'auto', top: 'auto'},
+      cols: this.baseColSize,
+      rows: this.baseRowSize,
+      rowNumber: 0,
+      toggleDragged: false,
+    }, {
+      title: 'Text 2',
+      rotate: 0,
+      state: 'stand',
+      content: {type: 'text'},
+      data: {text: 'users count: 2'},
+      params: {x: 0, y: 0, width: 0, height: 0, left: 'auto', top: 'auto'},
+      cols: this.baseColSize,
+      rows: this.baseRowSize,
+      rowNumber: 0,
+      toggleDragged: false,
+    }, {
+      title: 'Text 2',
+      rotate: 0,
+      state: 'stand',
+      content: {type: 'text'},
+      data: {text: 'users count: 2'},
+      params: {x: 0, y: 0, width: 0, height: 0, left: 'auto', top: 'auto'},
+      cols: this.baseColSize,
+      rows: this.baseRowSize,
+      rowNumber: 0,
+      toggleDragged: false,
+    }, {
       title: 'Text 3',
       rotate: 0,
       state: 'stand',
@@ -355,6 +388,15 @@ export class DragGridComponent implements OnInit {
     }
   }
 
+  getRowFreeSpace(rowNumber) {
+    let rowSize = 0;
+
+    for (let i = 0; i < this.cards.length; i++) {
+      if (this.cards[i].rowNumber === rowNumber) { rowSize += this.cards[i].cols; }
+    }
+    return rowSize;
+  }
+
   movingTiles(card, dropCard, cards) {
     this.moveTilesAside(card, dropCard);
     this.moveOtherTiles(card, dropCard, cards);
@@ -417,17 +459,21 @@ export class DragGridComponent implements OnInit {
     const grid = this._elementRef.nativeElement.getElementsByTagName(this.baseDropElement);
     let tempRowNum = 1;
     let tempColNum = 0;
+    let tempColNum2 = 0;
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
       tempColNum += card.cols;
-      card.colNumber = tempColNum;
       if (tempColNum > this.numberOfColumns) {
         tempRowNum++;
         tempColNum = card.cols;
+        tempColNum2 = 0;
       }
       card.rowNumber = tempRowNum;
       const gridTile = grid[i];
       this.setCardPositionForAnimation(card, gridTile);
+
+      card.colNumber = tempColNum2;
+      tempColNum2 += card.cols;
     }
   }
 }
