@@ -4,22 +4,22 @@
   cols="{{numberOfColumns}}"
   rowHeight="{{rowHeight}}px">
   <mat-grid-tile
-    *ngFor="let card of cards"
+    *ngFor="let card of cards; let i = index"
     [@rotation]="{value: card.rotate, params: {rotate: card.rotate, duration: rotateDuration}}"
-    [@dragElement]="{value: card.state, params: {x: card.params.x, y: card.params.y, left: card.params.left, top: card.params.top}}"
+    [@dragElement]="{value: card.state, params: {x: card.params.x, y: card.params.y, left: card.params.left, top: card.params.top, duration: dragDuration}}"
     (mousemove)="onMouseMoveGrid(card, $event)"
     (mousedown)="onMouseDownTile(card)"
     [colspan]="card.cols"
     [rowspan]="card.rows"
+    [attr.data-index]="i"
+    [ngStyle]="{background: card.color}"
     (dragover)="allowDrop($event)">
     <app-drag-card
       [ngStyle]="{opacity: card.display == true ? 1 : 0}"
       [card]="card"
       [changed]="card.state"
+      (sizeChanged)="onTileSizeChanged()"
       (drop)="onTileDrop($event)">
     </app-drag-card>
   </mat-grid-tile>
 </mat-grid-list>
-<ng-template #loadingGrid>
-  <mat-spinner class="dashboard-spinner"></mat-spinner>
-</ng-template>

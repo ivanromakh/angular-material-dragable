@@ -1,70 +1,34 @@
-<ng-template [ngIf]="card.content.type == 'table'">
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>settings</mat-icon>
-  </button>
-  <mat-menu #menu="matMenu">
+<mat-card class="dashboard-card" ng-if="card">
+  <div class="block-header">
+    <span style="text-align:center">{{card.title}}</span>
+  </div>
+  <div class="block-header-button">
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>settings</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
       <div fxLayout="row">
         <div fxLayout="column" (click)="$event.stopPropagation();">
           <mat-form-field>
-            <input [(ngModel)]="card.rows" type="number" matInput placeholder="Grid rows">
+            <input [(ngModel)]="card.rows" (change)="updateGrid()" type="number" matInput placeholder="Grid rows">
           </mat-form-field>
         </div>
         <div fxLayout="column" (click)="$event.stopPropagation();">
           <mat-form-field>
-            <input [(ngModel)]="card.cols" type="number" matInput placeholder="Grid rows">
+            <input [(ngModel)]="card.cols" (change)="updateGrid()" type="number" matInput placeholder="Grid rows">
           </mat-form-field>
         </div>
       </div>
     </mat-menu>
-  <app-table></app-table>
-</ng-template>
-
-<style>
-  .block-header {
-    display: inline-block;
-    width: 80%;
-    text-align: center;
-  }
-  .block-header-button {
-    display: inline-block;
-    width: 20%;
-  }
-</style>
-
-<ng-template [ngIf]="card.content.type != 'table'">
-  <mat-card class="dashboard-card" ng-if="card">
-      <div class="block-header">
-        <span style="text-align:center">{{card.title}}</span>
+  </div>
+  <mat-card-content class="dashboard-card-content">
+    <div *ngIf="card.content">
+      <div *ngIf="card.content.type == 'chart'">
+        <app-chart [card]="card"></app-chart>
       </div>
-      <div class="block-header-button">
-      <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>settings</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <div fxLayout="row">
-            <div fxLayout="column" (click)="$event.stopPropagation();">
-              <mat-form-field>
-                <input [(ngModel)]="card.rows" type="number" matInput placeholder="Grid rows">
-              </mat-form-field>
-            </div>
-            <div fxLayout="column" (click)="$event.stopPropagation();">
-              <mat-form-field>
-                <input [(ngModel)]="card.cols" type="number" matInput placeholder="Grid rows">
-              </mat-form-field>
-            </div>
-          </div>
-        </mat-menu>
+      <div *ngIf="card.content.type == 'text'">
+        {{card.data.text}}
       </div>
-    <mat-card-content class="dashboard-card-content">
-      <div *ngIf="card.content">
-        <div *ngIf="card.content.type == 'chart'">
-          <app-chart [card]="card"></app-chart>
-        </div>
-        <div *ngIf="card.content.type == 'text'">
-          {{card.data.text}}
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</ng-template>
-
+    </div>
+  </mat-card-content>
+</mat-card>

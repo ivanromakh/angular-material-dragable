@@ -5,42 +5,15 @@ import { Component, OnInit, ElementRef, Input, EventEmitter, Output, OnChanges }
   templateUrl: './dragCard.component.html',
   styleUrls: ['./dragCard.component.css'],
 })
-export class DragCardComponent implements OnInit, OnChanges {
+export class DragCardComponent implements OnInit {
   @Input() card;
   @Input() changed;
+  @Output() sizeChanged = new EventEmitter();
   @Output() drop = new EventEmitter();
   isLoaded = false;
   tries = 20;
 
   constructor(private _elementRef: ElementRef) {}
-
-  getMatGridTile(element) {
-    let {tries} = this;
-    while (element.tagName !== 'MAT-GRID-TILE') {
-      element = element.parentElement;
-      tries --;
-      if (tries < 0) {
-        break;
-      }
-    }
-    return element;
-  }
-
-  setCardPositionForAnimation(card, gridTile) {
-    card.params.x = gridTile.offsetLeft + 'px';
-    card.params.y = gridTile.offsetTop + 'px';
-    card.params.width = gridTile.offsetWidth + 'px';
-    card.params.height = gridTile.offsetHeight + 'px';
-  }
-
-  updatePosition() {
-    const el = this._elementRef.nativeElement;
-    this.setCardPositionForAnimation(this.card, this.getMatGridTile(el));
-  }
-
-  ngOnChanges(changes) {
-    //this.updatePosition();
-  }
 
   ngOnInit() {
     const el = this._elementRef.nativeElement;
@@ -57,7 +30,10 @@ export class DragCardComponent implements OnInit, OnChanges {
       el.classList.remove('drag-src');
       this.drop.emit(this.card);
     });
-    this.updatePosition();
+  }
+
+  updateGrid() {
+    this.sizeChanged.emit();
   }
 }
 

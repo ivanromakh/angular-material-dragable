@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { trigger, style, transition, animate, keyframes } from '@angular/animations';
+import { DragCard } from './interfaces/dragParams';
 
 @Component({
   selector: 'app-drag-grid',
@@ -9,11 +10,11 @@ import { trigger, style, transition, animate, keyframes } from '@angular/animati
     trigger('dragElement', [
       transition(
         '* => *',
-        animate('500ms ease', keyframes([
+        animate('{{duration}}ms ease', keyframes([
           style({ left: '{{x}}', top: '{{y}}', offset: 0 }),
           style({ left: '{{left}}', top: '{{top}}', offset: 1 }),
         ]),
-      ), { params: { x: 'null', left: 'null', y: 'null', top: 'null'}})
+      ), { params: { x: 'auto', left: 'auto', y: 'auto', top: 'auto', duration: '0'}})
     ]),
     trigger('rotation', [
       transition(
@@ -42,69 +43,31 @@ export class DragGridComponent implements OnInit {
   dragDuration = 500;
   rotateDuration = 200;
 
-  cards = [{
-      title: 'Population graph',
-      rotate: 0,
-      display: true,
-      state: false,
-      content: {type: 'chart'},
-      data: {
-        labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
-        datasets: [
-        {
-          label: "Population (millions)",
-          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-          data: [2478,5267,734,784,433]
-        }
-        ]
-      },
-      params: {x: 0, y: 0, left: 0, top: 0, width: 0, height: 0},
-      cols: this.baseColSize,
-      rows: this.baseRowSize
-    }, {
-      title: 'Table',
-      display: true,
-      rotate: 0,
-      state: false,
-      content: {type: 'documents'},
-      params: {x: 0, y: 0, left: 0, top: 0, width: 0, height: 0},
-      cols: this.baseColSize,
-      rows: this.baseRowSize
-    }, {
-      title: 'Importand data',
-      rotate: 0,
-      state: false,
-      display: true,
-      content: {type: 'text'},
-      data: {text: 'users count: 2'},
-      params: {x: 0, y: 0, left: 0, top: 0, width: 0, height: 0},
-      cols: this.baseColSize,
-      rows: this.baseRowSize
-    }, {
-      title: 'Card 4',
-      rotate: 0,
-      state: false,
-      display: true,
-      content: {type: 'table'},
-      params: {x: 0, y: 0, left: 0, top: 0, width: 0, height: 0},
-      cols: this.baseColSize,
-      rows: this.baseRowSize
-    }
+  cards: DragCard[] = [
+    { title: 'Table1', color: 'red', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
+    { title: 'Table2', color: 'black', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
+    { title: 'Table3', color: 'blue', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
+    { title: 'Table4', color: 'yellow', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
+    { title: 'Table5', color: 'pink', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
+    { title: 'Table6', color: 'green', element: null, display: true, rotate: 0, state: false, content: {type: 'documents'}, tempParams: {}, params: {x: 'auto', y: 'auto', left: 'auto', top: 'auto'}, cols: this.baseColSize, rows: this.baseRowSize },
   ];
 
-  constructor() { }
+  constructor(private _elementRef: ElementRef) { }
 
   ngOnInit() {
     this.isLoaded = true;
+    setTimeout(() => {
+      this.setGrid();
+    }, 400);
   }
 
   onTileDrop(card) {
     this.dropCard = card;
   }
 
-  getMatGridTile(element) {
+  getElementByTagName(element, tagName) {
     let {tries} = this;
-    while (element.tagName !== 'MAT-GRID-TILE') {
+    while (element.tagName !== tagName) {
       element = element.parentElement;
       tries --;
       if (tries < 0) {
@@ -112,13 +75,6 @@ export class DragGridComponent implements OnInit {
       }
     }
     return element;
-  }
-
-  setCardPositionForAnimation(card, gridTile) {
-    card.params.x = gridTile.offsetLeft + 'px';
-    card.params.y = gridTile.offsetTop + 'px';
-    card.params.width = gridTile.offsetWidth + 'px';
-    card.params.height = gridTile.offsetHeight + 'px';
   }
 
   onMouseDownTile(card) {
@@ -143,46 +99,88 @@ export class DragGridComponent implements OnInit {
     setTimeout(data.rotate, data.duration, data);
   }
 
+  toggleState(card) { card.state = !card.state; }
+
+  hideCard(card) { card.display = false; }
+  showCard(card) { card.display = true; }
+
+  setPositionX(card, value) { card.params.x = value; }
+  setPositionY(card, value) { card.params.y = value; }
+  setPositionLeft(card, value) { card.params.left = value; }
+  setPositionTop(card, value) { card.params.top = value; }
+
+  setAllPositions(card) {
+    this.setPositionX(card, card.tempParams.x);
+    this.setPositionY(card, card.tempParams.y);
+    this.setPositionLeft(card, card.tempParams.left);
+    this.setPositionTop(card, card.tempParams.top);
+  }
+
+  getTilePositionX(card) { return card.element.offsetLeft + 'px'; }
+  getTilePositionY(card) { return card.element.offsetTop + 'px'; }
+  getTileWidth(card) { return card.element.offsetWidth + 'px'; }
+  getTileHeight(card) { return card.element.offsetHeight + 'px'; }
+
+  beginAnimation(card) {
+    this.setAllPositions(card);
+    this.toggleState(card);
+    this.showCard(card);
+  }
+
+  getParams(card1, card2) {
+    card1.tempParams = {
+      x: this.getTilePositionX(card2),
+      y: this.getTilePositionY(card2),
+      left: this.getTilePositionX(card1),
+      top: this.getTilePositionY(card1)
+    };
+  }
+
   onMouseMoveGrid(card, event) {
-    const gridTile = this.getMatGridTile(event.target);
-    this.setCardPositionForAnimation(card, gridTile);
+    const {cards, dropCard} = this;
 
-    if (!this.dropCard) { return; }
+    if (!dropCard) { return; }
 
-    if (card !== this.dropCard) {
-      const {cards, dropCard} = this;
-      card.display = false;
-      dropCard.display = false;
+    if (card !== dropCard) {
+      this.hideCard(card);
+      this.hideCard(dropCard);
 
-      const paramsCard = {x: card.params.x, left: dropCard.params.x, y: card.params.y, top: dropCard.params.y};
-      const paramsDropCard = {x: dropCard.params.x, left: card.params.x, y: dropCard.params.y, top: card.params.y};
-      console.log(paramsCard, paramsDropCard);
-
-      let hoverIndex = cards.indexOf(card);
-      let dropIndex = cards.indexOf(dropCard);
+      const hoverIndex = cards.indexOf(card);
+      const dropIndex = cards.indexOf(dropCard);
 
       cards.splice(hoverIndex, 1, dropCard);
       cards.splice(dropIndex, 1, card);
 
-      hoverIndex = cards.indexOf(card);
-      dropIndex = cards.indexOf(dropCard);
+      cards.forEach((loopCard, cardNum) => {
+        loopCard.tempParams = {x: this.getTilePositionX(loopCard), y: this.getTilePositionY(loopCard)};
+      });
 
       setTimeout(() => {
-        this.cards[hoverIndex].params = paramsCard;
-        this.cards[dropIndex].params = paramsDropCard;
-
-        this.cards[hoverIndex].state = !this.cards[hoverIndex].state;
-        this.cards[dropIndex].state = !this.cards[dropIndex].state;
-        this.cards[hoverIndex].display = true;
-        this.cards[dropIndex].display = true;
-      }, 60);
-
-      this.dropCard = null;
+        cards.forEach(loopCard => {
+          loopCard.tempParams.left = this.getTilePositionX(loopCard);
+          loopCard.tempParams.top = this.getTilePositionY(loopCard);
+          this.beginAnimation(loopCard);
+        });
+      }, 70);
     }
     this.dropCard = null;
   }
 
   allowDrop(event) {
     event.preventDefault();
+  }
+
+  setGrid() {
+    const gridList = this._elementRef.nativeElement.getElementsByTagName('MAT-GRID-LIST')[0];
+    const gridTiles = gridList.getElementsByTagName('MAT-GRID-TILE');
+    for (let tileNum = 0; tileNum < gridTiles.length; tileNum++) {
+      const gridTile = gridTiles[tileNum];
+      const number = gridTile.getAttribute('data-index');
+      this.cards[number].element = gridTile;
+    }
+  }
+
+  sizeChanged() {
+    console.log('size changed');
   }
 }

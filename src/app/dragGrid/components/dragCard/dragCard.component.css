@@ -12,3 +12,13 @@ mat-card {
 mat-form-field {
   margin: 10px;
 }
+
+.block-header {
+  display: inline-block;
+  width: 80%;
+  text-align: center;
+}
+.block-header-button {
+  display: inline-block;
+  width: 20%;
+}
